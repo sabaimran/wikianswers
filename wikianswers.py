@@ -1,6 +1,7 @@
 from helpers.wikiarticle import WikiArticle
 from transformers import BartTokenizer, TFBartForConditionalGeneration, BertTokenizer, TFBertForQuestionAnswering
 import tensorflow as tf
+import argparse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -50,8 +51,12 @@ class QuestionAnswer:
 
         return (answer, context)
 
-def main():
-    logging.basicConfig(level=logging.INFO)
+def main(verbose=False):
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    
     summarizer = Summarizer()
     question_answer = QuestionAnswer()
 
@@ -87,7 +92,13 @@ def main():
             logger.info("answering...")
             response = question_answer.answer_question(article, question)
             logger.info("answer: " + response[0])
-            logger.info("context: " + response[1])
+            if len(response) > 1:
+                logger.info("context: " + response[1])
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true", default=False)
+    args = parser.parse_args()
+    verbose = args.verbose
+
+    main(args.verbose)
